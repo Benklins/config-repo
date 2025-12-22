@@ -1,0 +1,40 @@
+server.port=8903
+spring.application.name=api-gateway
+
+# Connect to Consul
+spring.cloud.consul.host=localhost
+spring.cloud.consul.port=8501
+spring.cloud.consul.discovery.prefer-ip-address=false
+spring.cloud.consul.discovery.hostname=host.docker.internal
+spring.cloud.consul.discovery.port=${server.port}
+spring.cloud.consul.discovery.instance-id=${spring.application.name}:${server.port}
+spring.cloud.consul.discovery.health-check-path=/actuator/health
+spring.cloud.consul.discovery.health-check-interval=15s
+
+# Enable service discovery for gateway
+spring.cloud.gateway.discovery.locator.enabled=true
+spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+
+# Product Service Route
+spring.cloud.gateway.routes[0].id=product-service
+spring.cloud.gateway.routes[0].uri=lb://product-service
+spring.cloud.gateway.routes[0].predicates[0]=Path=/api/products/**
+
+# Stock Service Route
+spring.cloud.gateway.routes[1].id=stock-service
+spring.cloud.gateway.routes[1].uri=lb://stock-service
+spring.cloud.gateway.routes[1].predicates[0]=Path=/api/stock/**
+
+# Actuator
+management.endpoints.web.exposure.include=health,info,metrics,tracing
+management.endpoint.health.show-details=always
+management.health.circuitbreakers.enabled=true
+
+# Zipkin Configuration
+management.tracing.sampling.probability=1.0
+management.tracing.enabled=true
+management.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans
+management.otlp.tracing.endpoint=http://localhost:9411/v1/traces
+
+# Enable distributed tracing
+management.observations.enabled=true
