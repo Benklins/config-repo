@@ -1,0 +1,70 @@
+server.port=8901
+spring.application.name=product-service
+
+# Consul configuration
+spring.cloud.consul.host=localhost
+spring.cloud.consul.port=8501
+spring.cloud.consul.discovery.prefer-ip-address=false
+spring.cloud.consul.discovery.hostname=host.docker.internal
+spring.cloud.consul.discovery.port=${server.port}
+spring.cloud.consul.discovery.instance-id=${spring.application.name}:${server.port}
+spring.cloud.consul.discovery.health-check-path=/actuator/health
+spring.cloud.consul.discovery.health-check-interval=15s
+
+# Actuator
+management.endpoints.web.exposure.include=health,info,metrics,tracing,circuitbreakers
+management.endpoint.health.show-details=always
+management.health.circuitbreakers.enabled=true
+
+# Tracing configuration
+management.tracing.enabled=true
+management.tracing.sampling.probability=1.0
+management.opentelemetry.resource-attributes.service.name=${spring.application.name}
+management.tracing.propagation.type=B3,W3C
+
+# Zipkin exporter
+management.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans
+management.otlp.tracing.endpoint=http://localhost:9411/v1/traces
+
+# Feign client configuration
+feign.client.config.default.logger-level=basic
+spring.cloud.loadbalancer.enabled=true
+feign.micrometer.enabled=true
+management.observations.feign.enabled=true
+feign.okhttp.enabled=true
+
+# OpenTelemetry instrumentation
+otel.instrumentation.http-client.enabled=true
+otel.instrumentation.okhttp.enabled=true
+
+# HTTP client tracing
+management.tracing.http.legacy.enabled=true
+management.tracing.http.clients.enabled=true
+spring.web.client.observation.enabled=true
+
+# Circuit Breaker Configuration
+resilience4j.circuitbreaker.instances.stockService.registerHealthIndicator=true
+resilience4j.circuitbreaker.instances.stockService.slidingWindowSize=10
+resilience4j.circuitbreaker.instances.stockService.minimumNumberOfCalls=5
+resilience4j.circuitbreaker.instances.stockService.permittedNumberOfCallsInHalfOpenState=3
+resilience4j.circuitbreaker.instances.stockService.automaticTransitionFromOpenToHalfOpenEnabled=true
+resilience4j.circuitbreaker.instances.stockService.waitDurationInOpenState=5s
+resilience4j.circuitbreaker.instances.stockService.failureRateThreshold=50
+resilience4j.circuitbreaker.instances.stockService.eventConsumerBufferSize=10
+
+# Retry Configuration
+resilience4j.retry.instances.stockService.maxAttempts=3
+resilience4j.retry.instances.stockService.waitDuration=1s
+resilience4j.retry.instances.stockService.enableExponentialBackoff=true
+resilience4j.retry.instances.stockService.exponentialBackoffMultiplier=2
+resilience4j.retry.instances.stockService.exponentialMaxWaitDuration=10s
+resilience4j.retry.instances.stockService.enableRandomizedWait=true
+resilience4j.retry.instances.stockService.randomizedWaitFactor=0.5
+resilience4j.retry.instances.stockService.retryExceptions=org.springframework.web.client.ResourceAccessException,java.net.ConnectException
+
+# Time Limiter Configuration
+resilience4j.timelimiter.instances.stockService.timeoutDuration=3s
+
+# AOP Configuration
+spring.aop.auto=true
+spring.aop.proxy-target-class=true
