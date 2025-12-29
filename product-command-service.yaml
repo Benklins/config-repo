@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: product-command-service
+
+  data:
+    mongodb:
+      host: ${MONGODB_HOST}
+      port: ${MONGODB_PORT}
+      username: ${MONGODB_USERNAME}
+      password: ${MONGODB_PASSWORD}
+      database: product-command
+      authentication-database: ${MONGODB_AUTH_DATABASE}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: productEvent:edu.miu.labs.productcommandservice.event.ProductEvent
+        spring.json.add.type.headers: false
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    edu.miu.labs.productcommandservice: DEBUG
+    org.springframework.data.mongodb: INFO
+    org.springframework.kafka: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
